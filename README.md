@@ -24,7 +24,7 @@ AI-powered universal search platform with semantic understanding, hybrid ranking
 │Crawler│    │ Indexing  │  │ AI Ranking │
 │:3002  │    │ :3003     │  │ :3004      │
 │       │    │ pipeline  │  │ BM25 +     │
-│Playwright │ vectorstore│  │ semantic   │
+│fetch +│    │ vectorstore│  │ semantic   │
 │queue  │    │ lexical   │  │ hybrid     │
 └───┬───┘    └─────┬─────┘  └────────────┘
     │              │
@@ -40,7 +40,7 @@ AI-powered universal search platform with semantic understanding, hybrid ranking
 |---------|------|-------------|
 | Frontend | 3000 | Next.js UI — search, chat, dashboard |
 | Gateway | 3001 | API gateway — routing, auth, rate-limiting |
-| Crawler | 3002 | Web crawler with Playwright |
+| Crawler | 3002 | Fetch-based web crawler with in-memory job queue |
 | Indexing | 3003 | HTML → clean → chunk → embed → store |
 | AI Ranking | 3004 | Hybrid BM25 + semantic reranking |
 | PostgreSQL | 5432 | Relational metadata store |
@@ -71,6 +71,52 @@ open http://localhost:3000
 - **Semantic** — Vector similarity search using embeddings (Qdrant)
 - **Hybrid** — Combined BM25 (30%) + semantic (45%) + freshness (10%) + authority (15%)
 - **Research** — Deep synthesis across multiple sources via LLM
+
+## CLI
+
+AISEARCH ELITE includes a top-level command-line interface for managing all services without touching individual service directories.
+
+### Installation
+
+```bash
+cd packages/cli
+npm install
+npm run build
+npm link          # makes `aisearch` available globally
+```
+
+### Commands
+
+| Command | Description |
+|---------|-------------|
+| `aisearch start` | Start all services via Docker Compose |
+| `aisearch stop` | Stop all running services |
+| `aisearch status` | Check health of all services |
+| `aisearch crawl <url>` | Submit a URL for crawling |
+| `aisearch index <url>` | Submit a URL for indexing |
+| `aisearch search <query>` | Run a search and print results |
+
+### Examples
+
+```bash
+# Start the full platform
+aisearch start
+
+# Check service health
+aisearch status
+
+# Crawl a website
+aisearch crawl https://example.com
+
+# Index a specific page
+aisearch index https://example.com/page
+
+# Search
+aisearch search "AI-powered search"
+
+# Stop everything
+aisearch stop
+```
 
 ## Development
 
