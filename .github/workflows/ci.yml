@@ -1,0 +1,166 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "copilot/**"]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  # ── Frontend ────────────────────────────────────────────────────────────────
+  frontend:
+    name: Frontend — lint & build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+  # ── Gateway ──────────────────────────────────────────────────────────────────
+  gateway:
+    name: Gateway — build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/gateway-service
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: services/gateway-service/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (TypeScript)
+        run: npm run build
+
+  # ── Crawler ──────────────────────────────────────────────────────────────────
+  crawler:
+    name: Crawler — build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/crawler-service
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: services/crawler-service/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (TypeScript)
+        run: npm run build
+
+  # ── Indexing ─────────────────────────────────────────────────────────────────
+  indexing:
+    name: Indexing — build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/indexing-service
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: services/indexing-service/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (TypeScript)
+        run: npm run build
+
+  # ── AI Ranking ───────────────────────────────────────────────────────────────
+  ai-ranking:
+    name: AI Ranking — build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/ai-ranking-service
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: services/ai-ranking-service/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (TypeScript)
+        run: npm run build
+
+  # ── CLI ───────────────────────────────────────────────────────────────────────
+  cli:
+    name: CLI — build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/cli
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: packages/cli/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (TypeScript)
+        run: npm run build
+
+  # ── Docker builds ────────────────────────────────────────────────────────────
+  docker-build:
+    name: Docker build — ${{ matrix.service }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service:
+          - gateway-service
+          - crawler-service
+          - indexing-service
+          - ai-ranking-service
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            -t aisearch/${{ matrix.service }}:ci \
+            ./services/${{ matrix.service }}

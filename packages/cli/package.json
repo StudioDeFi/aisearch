@@ -1,0 +1,21 @@
+{
+  "name": "aisearch-cli",
+  "version": "1.0.0",
+  "description": "AISEARCH ELITE command-line interface",
+  "bin": {
+    "aisearch": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node-dev --respawn src/index.ts",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "commander": "12.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "typescript": "^5.4.5",
+    "ts-node-dev": "^2.0.0"
+  }
+}

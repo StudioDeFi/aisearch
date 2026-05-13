@@ -1,0 +1,52 @@
+name: Docker Security Scan (Trivy)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Run every Monday at 06:00 UTC
+    - cron: "0 6 * * 1"
+
+jobs:
+  trivy-scan:
+    name: Trivy — ${{ matrix.service }}
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write   # upload SARIF to GitHub Security tab
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - gateway-service
+          - crawler-service
+          - indexing-service
+          - ai-ranking-service
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            -t aisearch/${{ matrix.service }}:scan \
+            ./services/${{ matrix.service }}
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: "aisearch/${{ matrix.service }}:scan"
+          format: "sarif"
+          output: "trivy-${{ matrix.service }}.sarif"
+          severity: "CRITICAL,HIGH"
+          exit-code: "1"
+          ignore-unfixed: true
+
+      - name: Upload Trivy SARIF to GitHub Security tab
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: "trivy-${{ matrix.service }}.sarif"
+          category: "trivy-${{ matrix.service }}"
