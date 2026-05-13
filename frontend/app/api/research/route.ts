@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import type { ResearchRequest, ResearchResponse } from '@/../../packages/types/src'
+import type { ResearchRequest, ResearchResponse } from '@/lib/types'
 
 const GATEWAY_URL = process.env.GATEWAY_URL ?? 'http://localhost:3001'
 
@@ -11,15 +11,19 @@ export async function POST(req: NextRequest) {
 
   try {
     const ctrl = new AbortController()
-    setTimeout(() => ctrl.abort(), 15000)
-    const upstream = await fetch(`${GATEWAY_URL}/api/research`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-      signal: ctrl.signal,
-    })
-    if (!upstream.ok) throw new Error('gateway error')
-    return NextResponse.json(await upstream.json())
+    const timeoutId = setTimeout(() => ctrl.abort(), 15000)
+    try {
+      const upstream = await fetch(`${GATEWAY_URL}/api/research`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+        signal: ctrl.signal,
+      })
+      if (!upstream.ok) throw new Error('gateway error')
+      return NextResponse.json(await upstream.json())
+    } finally {
+      clearTimeout(timeoutId)
+    }
   } catch {
     const mockSources = Array.from({ length: sources }, (_, i) => ({
       id: `research-src-${i}`,

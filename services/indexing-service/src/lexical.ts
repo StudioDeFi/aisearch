@@ -26,8 +26,16 @@ export class LexicalStore {
   async upsert(chunks: ProcessedChunk[]): Promise<void> {
     for (const chunk of chunks) {
       const tokens = this.tokenize(chunk.text)
+
+      // Correctly adjust totals when re-indexing an existing chunk
+      const existingLen = this.docLengths.get(chunk.id)
+      if (existingLen !== undefined) {
+        this.totalLength -= existingLen
+      } else {
+        this.totalDocs++
+      }
+
       this.docLengths.set(chunk.id, tokens.length)
-      this.totalDocs++
       this.totalLength += tokens.length
       this.avgDocLength = this.totalLength / this.totalDocs
 
@@ -36,7 +44,9 @@ export class LexicalStore {
 
       for (const [term, count] of tf.entries()) {
         if (!this.index[term]) this.index[term] = new Map()
-        this.index[term].set(chunk.id, { chunk, tf: count / tokens.length })
+        // Store raw term frequency count (not normalized) so the BM25 formula
+        // in search() can apply its own length normalization correctly.
+        this.index[term].set(chunk.id, { chunk, tf: count })
       }
     }
     console.log(`[LexicalStore] Indexed ${chunks.length} chunks (index terms: ${Object.keys(this.index).length})`)

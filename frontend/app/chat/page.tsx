@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect, useCallback } from 'react'
-import type { ChatMessage, UnifiedSearchDocument } from '@/../../packages/types/src'
+import type { ChatMessage, UnifiedSearchDocument } from '@/lib/types'
 
 /** Delay (ms) between words when simulating streaming word-by-word reveal */
 const STREAMING_WORD_DELAY_MS = 18

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import type { SearchRequest, SearchResponse, UnifiedSearchDocument } from '@/../../packages/types/src'
+import type { SearchRequest, SearchResponse, UnifiedSearchDocument } from '@/lib/types'
 
 const GATEWAY_URL = process.env.GATEWAY_URL ?? 'http://localhost:3001'
 

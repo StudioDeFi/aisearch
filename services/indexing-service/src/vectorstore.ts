@@ -43,11 +43,15 @@ export class VectorStore {
     for (const [id, { chunk }] of this.vectors.entries()) {
       if (chunk.url === url) { this.vectors.delete(id); deleted++ }
     }
+    // Only remove URL from the set if no vectors for it remain
+    const stillExists = [...this.vectors.values()].some(({ chunk }) => chunk.url === url)
+    if (!stillExists) this.uniqueUrls.delete(url)
     return deleted
   }
 
   private cosineSimilarity(a: number[], b: number[], normA: number, normB: number): number {
     if (normA === 0 || normB === 0) return 0
+    if (a.length !== b.length) return 0  // dimension mismatch — skip rather than produce NaN
     let dot = 0
     for (let i = 0; i < a.length; i++) dot += a[i] * b[i]
     return dot / (normA * normB)

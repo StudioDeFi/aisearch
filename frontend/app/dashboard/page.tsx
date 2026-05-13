@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import type { DashboardStats, ServiceHealth } from '@/../../packages/types/src'
+import type { DashboardStats, ServiceHealth } from '@/lib/types'
 
 const MOCK_STATS: DashboardStats = {
   queriesToday: 14832,

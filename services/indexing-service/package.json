@@ -8,11 +8,8 @@
     "start": "node dist/index.js"
   },
   "dependencies": {
-    "fastify": "^4.27.0",
+    "fastify": "5.8.5",
     "@fastify/cors": "^9.0.1",
-    "@opensearch-project/opensearch": "^2.7.0",
-    "openai": "^4.51.0",
-    "cheerio": "^1.0.0-rc.12",
     "dotenv": "^16.4.5"
   },
   "devDependencies": {

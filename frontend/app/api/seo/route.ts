@@ -10,15 +10,19 @@ export async function POST(req: NextRequest) {
 
   try {
     const ctrl = new AbortController()
-    setTimeout(() => ctrl.abort(), 5000)
-    const upstream = await fetch(`${GATEWAY_URL}/api/seo`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-      signal: ctrl.signal,
-    })
-    if (!upstream.ok) throw new Error('gateway error')
-    return NextResponse.json(await upstream.json())
+    const timeoutId = setTimeout(() => ctrl.abort(), 5000)
+    try {
+      const upstream = await fetch(`${GATEWAY_URL}/api/seo`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+        signal: ctrl.signal,
+      })
+      if (!upstream.ok) throw new Error('gateway error')
+      return NextResponse.json(await upstream.json())
+    } finally {
+      clearTimeout(timeoutId)
+    }
   } catch {
     return NextResponse.json({
       url,

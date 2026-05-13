@@ -1,4 +1,4 @@
-import type { UnifiedSearchDocument } from '../../../packages/types/src/index.js'
+import type { UnifiedSearchDocument } from './types.js'
 
 export interface HybridScoringConfig {
   bm25Weight: number      // weight for lexical BM25 score

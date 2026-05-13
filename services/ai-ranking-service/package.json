@@ -8,9 +8,8 @@
     "start": "node dist/index.js"
   },
   "dependencies": {
-    "fastify": "^4.27.0",
+    "fastify": "5.8.5",
     "@fastify/cors": "^9.0.1",
-    "openai": "^4.51.0",
     "dotenv": "^16.4.5"
   },
   "devDependencies": {

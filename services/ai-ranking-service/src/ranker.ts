@@ -1,4 +1,4 @@
-import type { UnifiedSearchDocument } from '../../../packages/types/src/index.js'
+import type { UnifiedSearchDocument } from './types.js'
 
 export class AIRanker {
   async fetchCandidates(query: string, page: number, limit: number): Promise<UnifiedSearchDocument[]> {

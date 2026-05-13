@@ -1,6 +1,6 @@
 'use client'
 
-import type { SearchResponse, UnifiedSearchDocument } from '@/../../packages/types/src'
+import type { SearchResponse, UnifiedSearchDocument } from '@/lib/types'
 
 interface Props {
   results: SearchResponse

@@ -1,16 +1,17 @@
 'use client'
 
 import { useState, useRef, FormEvent } from 'react'
-import type { SearchMode } from '@/../../packages/types/src'
+import type { SearchMode } from '@/lib/types'
 
 interface Props {
   onSearch: (query: string, mode: SearchMode) => void
+  mode: SearchMode
+  onModeChange: (mode: SearchMode) => void
   loading?: boolean
 }
 
-export default function SearchBar({ onSearch, loading }: Props) {
+export default function SearchBar({ onSearch, mode, onModeChange, loading }: Props) {
   const [query, setQuery] = useState('')
-  const [mode, setMode] = useState<SearchMode>('hybrid')
   const inputRef = useRef<HTMLInputElement>(null)
 
   const handleSubmit = (e: FormEvent) => {
@@ -24,7 +25,7 @@ export default function SearchBar({ onSearch, loading }: Props) {
         {/* Mode selector */}
         <select
           value={mode}
-          onChange={(e) => setMode(e.target.value as SearchMode)}
+          onChange={(e) => onModeChange(e.target.value as SearchMode)}
           className="bg-transparent text-slate-300 text-sm border-r border-white/20 pl-4 pr-3 py-4 focus:outline-none cursor-pointer"
         >
           <option value="standard" className="bg-slate-800">Standard</option>

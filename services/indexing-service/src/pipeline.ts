@@ -116,11 +116,13 @@ export class IndexingPipeline {
       const close = `</${tag}>`
       const parts: string[] = []
       let pos = 0
-      while (pos < result.length) {
-        const start = result.toLowerCase().indexOf(open, pos)
+      // Cache the lowercase copy once per tag; refresh when result changes between tags.
+      let lowerResult = result.toLowerCase()
+      while (pos < lowerResult.length) {
+        const start = lowerResult.indexOf(open, pos)
         if (start === -1) { parts.push(result.slice(pos)); break }
         parts.push(result.slice(pos, start))
-        const end = result.toLowerCase().indexOf(close, start + open.length)
+        const end = lowerResult.indexOf(close, start + open.length)
         pos = end === -1 ? result.length : end + close.length
       }
       result = parts.join('')

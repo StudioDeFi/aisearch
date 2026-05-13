@@ -3,7 +3,7 @@
 import { useState, useCallback } from 'react'
 import SearchBar from '@/components/SearchBar'
 import SearchResults from '@/components/SearchResults'
-import type { SearchMode, SearchResponse } from '@/../../packages/types/src'
+import type { SearchMode, SearchResponse } from '@/lib/types'
 
 export default function HomePage() {
   const [query, setQuery] = useState('')
@@ -52,7 +52,7 @@ export default function HomePage() {
           AI-powered universal search with semantic understanding, hybrid ranking, and research synthesis
         </p>
 
-        <SearchBar onSearch={handleSearch} loading={loading} />
+        <SearchBar onSearch={handleSearch} mode={mode} onModeChange={setMode} loading={loading} />
 
         {/* Mode pills */}
         <div className="flex gap-2 mt-5 flex-wrap justify-center">

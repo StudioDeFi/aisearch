@@ -6,7 +6,7 @@ AI-powered universal search platform with semantic understanding, hybrid ranking
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  Frontend (Next.js 14)           :3000                          │
+│  Frontend (Next.js 15)           :3000                          │
 │  ├── / (Home / Search)                                          │
 │  ├── /chat (AI Research Chat)                                   │
 │  └── /dashboard (Monitoring)                                    │
@@ -106,7 +106,7 @@ cd services/ai-ranking-service && npm install && npm run dev
 
 ```
 aisearch/
-├── frontend/                    # Next.js 14 app
+├── frontend/                    # Next.js 15 app
 │   ├── app/
 │   │   ├── page.tsx             # Home / search
 │   │   ├── chat/page.tsx        # AI chat interface
