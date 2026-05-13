@@ -30,6 +30,11 @@ export class LexicalStore {
       // Correctly adjust totals when re-indexing an existing chunk
       const existingLen = this.docLengths.get(chunk.id)
       if (existingLen !== undefined) {
+        // Remove stale postings for this chunk so the index doesn't retain
+        // term entries that no longer exist in the updated content.
+        for (const postings of Object.values(this.index)) {
+          postings.delete(chunk.id)
+        }
         this.totalLength -= existingLen
       } else {
         this.totalDocs++

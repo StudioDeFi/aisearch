@@ -116,7 +116,10 @@ export class IndexingPipeline {
       const close = `</${tag}>`
       const parts: string[] = []
       let pos = 0
-      // Cache the lowercase copy once per tag; refresh when result changes between tags.
+      // lowerResult is declared inside the for loop so it is automatically
+      // recomputed from the updated result at the start of each tag's pass.
+      // It is cached for the duration of the while loop (single tag scan) to
+      // avoid repeated O(n) toLowerCase calls on every indexOf iteration.
       let lowerResult = result.toLowerCase()
       while (pos < lowerResult.length) {
         const start = lowerResult.indexOf(open, pos)
