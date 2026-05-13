@@ -64,6 +64,8 @@ export class AIRanker {
   }
 
   private synthesize(query: string, sources: UnifiedSearchDocument[], depth: string): string {
+    // Placeholder: returns a templated summary. In production, replace with an LLM call
+    // (e.g. OpenAI chat completion) that ingests the actual source snippets for real synthesis.
     const srcList = sources.map((s, i) => `  [${i + 1}] ${s.title}`).join('\n')
     return `**Research Summary: ${query}**\n\n` +
       `Based on a ${depth} analysis of ${sources.length} authoritative sources:\n\n` +

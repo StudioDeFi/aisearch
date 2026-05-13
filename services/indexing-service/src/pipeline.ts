@@ -85,7 +85,7 @@ export class IndexingPipeline {
     const MAX_TEXT_LENGTH = 50_000
     const stripped = this.stripTaggedSections(html, ['script', 'style', 'nav', 'footer'])
     return this.stripAllTags(stripped)
-      .replace(/&[a-z]{1,8};/gi, ' ')
+      .replace(/&[a-zA-Z]{1,8};|&#\d{1,6};|&#x[\da-fA-F]{1,6};/g, ' ')
       .replace(/\s+/g, ' ')
       .trim()
       .slice(0, MAX_TEXT_LENGTH)

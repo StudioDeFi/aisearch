@@ -46,10 +46,10 @@ function extractLinks(html: string, baseUrl: string): string[] {
     if (end === -1) break
     const href = html.slice(pos, end)
     pos = end + 1
-    if (!href || href.startsWith('#') || href.startsWith('javascript:')) continue
+    if (!href || href.startsWith('#') || href.startsWith('javascript:') || href.startsWith('data:') || href.startsWith('vbscript:')) continue
     try {
       const abs = new URL(href, baseUrl).href
-      if (abs.startsWith('http') && !seen.has(abs)) {
+      if ((abs.startsWith('http://') || abs.startsWith('https://')) && !seen.has(abs)) {
         seen.add(abs)
         links.push(abs)
       }
@@ -110,8 +110,8 @@ export class CrawlerService {
   }
 
   private async crawlSite(startUrl: string, depth: number, maxPages: number): Promise<CrawlPage[]> {
-    // Playwright-based crawler stub
-    // In production this uses playwright chromium to render JS-heavy pages
+    // Fetch-based crawler implementation.
+    // Production upgrade path: swap fetchPage() for a Playwright/Chromium renderer for JS-heavy sites.
     const pages: CrawlPage[] = []
     const visited = new Set<string>()
     const toVisit: Array<{ url: string; d: number }> = [{ url: startUrl, d: 0 }]
