@@ -1,0 +1,172 @@
+version: '3.9'
+
+services:
+  gateway:
+    build: ./services/gateway-service
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - REDIS_URL=redis://redis:6379
+      - OPENSEARCH_URL=http://opensearch:9200
+      - QDRANT_URL=http://qdrant:6333
+      - POSTGRES_URL=postgresql://aisearch:aisearch@postgres:5432/aisearch
+      - CRAWLER_URL=http://crawler:3002
+      - INDEXING_URL=http://indexing:3003
+      - AI_RANKING_URL=http://ai-ranking:3004
+    depends_on:
+      - redis
+      - opensearch
+      - qdrant
+      - postgres
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  crawler:
+    build: ./services/crawler-service
+    ports:
+      - "3002:3002"
+    environment:
+      - PORT=3002
+      - REDIS_URL=redis://redis:6379
+      - INDEXING_URL=http://indexing:3003
+    depends_on:
+      - redis
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  indexing:
+    build: ./services/indexing-service
+    ports:
+      - "3003:3003"
+    environment:
+      - PORT=3003
+      - QDRANT_URL=http://qdrant:6333
+      - OPENSEARCH_URL=http://opensearch:9200
+      - POSTGRES_URL=postgresql://aisearch:aisearch@postgres:5432/aisearch
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+    depends_on:
+      - qdrant
+      - opensearch
+      - postgres
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  ai-ranking:
+    build: ./services/ai-ranking-service
+    ports:
+      - "3004:3004"
+    environment:
+      - PORT=3004
+      - REDIS_URL=redis://redis:6379
+      - QDRANT_URL=http://qdrant:6333
+      - OPENSEARCH_URL=http://opensearch:9200
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+    depends_on:
+      - redis
+      - qdrant
+      - opensearch
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3004/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - GATEWAY_URL=http://gateway:3001
+      - NEXT_PUBLIC_GATEWAY_URL=http://gateway:3001
+    depends_on:
+      - gateway
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_DB=aisearch
+      - POSTGRES_USER=aisearch
+      - POSTGRES_PASSWORD=aisearch
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aisearch"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:6333/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  opensearch:
+    image: opensearchproject/opensearch:2.13.0
+    environment:
+      - discovery.type=single-node
+      - DISABLE_SECURITY_PLUGIN=true
+      - OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - "9200:9200"
+      - "9600:9600"
+    volumes:
+      - opensearch_data:/usr/share/opensearch/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+volumes:
+  postgres_data:
+  redis_data:
+  qdrant_data:
+  opensearch_data:
